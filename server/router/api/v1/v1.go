@@ -115,6 +115,10 @@ func (s *APIV1Service) RegisterGateway(ctx context.Context, echoServer *echo.Ech
 	}))
 	// Register SSE endpoint with same CORS as rest of /api/v1.
 	RegisterSSERoutes(gwGroup, s.SSEHub, s.Store, s.Secret)
+
+	// Register Write Webhook (Flomo-style)
+	gwGroup.POST("/api/v1/webhook/write/:token", s.HandleWriteWebhook)
+
 	handler := echo.WrapHandler(gwMux)
 
 	gwGroup.Any("/api/v1/*", handler)

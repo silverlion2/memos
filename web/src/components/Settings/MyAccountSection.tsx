@@ -10,6 +10,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import AccessTokenSection from "./AccessTokenSection";
 import SettingGroup from "./SettingGroup";
 import SettingSection from "./SettingSection";
+import WriteApiSection from "./WriteApiSection";
+import DataExportSection from "./DataExportSection";
 
 const MyAccountSection = () => {
   const t = useTranslate();
@@ -50,6 +52,14 @@ const MyAccountSection = () => {
 
       <SettingGroup showSeparator>
         <AccessTokenSection />
+      </SettingGroup>
+
+      <SettingGroup showSeparator>
+        <WriteApiSection />
+      </SettingGroup>
+
+      <SettingGroup showSeparator>
+        <DataExportSection />
       </SettingGroup>
 
       {/* Update Account Dialog */}

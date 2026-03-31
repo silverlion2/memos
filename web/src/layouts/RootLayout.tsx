@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { Outlet, useLocation, useSearchParams } from "react-router-dom";
 import usePrevious from "react-use/lib/usePrevious";
 import Navigation from "@/components/Navigation";
+import QuickCaptureFAB from "@/components/QuickCaptureFAB";
 import { useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import useMediaQuery from "@/hooks/useMediaQuery";
@@ -53,6 +54,7 @@ const RootLayout = () => {
       <main className="w-full h-auto grow shrink flex flex-col justify-start items-center">
         <Outlet />
       </main>
+      <QuickCaptureFAB />
     </div>
   );
 };

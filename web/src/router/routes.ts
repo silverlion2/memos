@@ -3,6 +3,7 @@ export const ROUTES = {
   ATTACHMENTS: "/attachments",
   INBOX: "/inbox",
   ARCHIVED: "/archived",
+  DAILY_REVIEW: "/review",
   SETTING: "/setting",
   EXPLORE: "/explore",
   AUTH: "/auth",

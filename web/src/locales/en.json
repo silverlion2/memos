@@ -38,6 +38,7 @@
     "create": "Create",
     "created-at": "Created at",
     "database": "Database",
+    "daily-review": "Daily Review",
     "day": "Day",
     "days": {
       "fri": "Fri",
@@ -67,8 +68,8 @@
     "link": "Link",
     "map": "Map",
     "mark": "Mark",
-    "memo": "Memo",
-    "memos": "Memos",
+    "memo": "PaperSlip",
+    "memos": "PaperSlips",
     "more": "More",
     "name": "Name",
     "new": "New",
@@ -125,6 +126,21 @@
     "save": "Save",
     "saving": "Saving...",
     "slash-commands": "Type `/` for commands"
+  },
+  "daily-review": {
+    "title": "Daily Review",
+    "subtitle": "Revisit your past thoughts",
+    "shuffle": "Shuffle",
+    "no-memos": "No memos to review yet. Start writing!",
+    "reviewed": "Reviewed",
+    "skip": "Skip",
+    "edit": "Edit",
+    "older-than": "Older than {{days}} days",
+    "from-the-past": "From the past",
+    "review-count": "{{count}} memos to review",
+    "all-reviewed": "You've reviewed all memos! 🎉",
+    "quick-capture": "Quick Capture",
+    "press-shortcut": "Press Ctrl+Shift+N anywhere"
   },
   "inbox": {
     "failed-to-load": "Failed to load inbox item",
@@ -304,7 +320,7 @@
     "account": {
       "change-password": "Change password",
       "email-note": "Optional",
-      "export-memos": "Export Memos",
+      "export-memos": "Export PaperSlips",
       "nickname-note": "Displayed in the banner",
       "openapi-reset": "Reset OpenAPI Key",
       "openapi-sample-post": "Hello #memos from {{url}}",
