@@ -5,8 +5,7 @@ import { toast } from "react-hot-toast";
 import { memoServiceClient } from "@/connect";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { cn } from "@/lib/utils";
-import { MemoSchema, type Memo } from "@/types/proto/api/v1/memo_service_pb";
-import { Visibility } from "@/types/proto/api/v1/memo_service_pb";
+import { type Memo, MemoSchema, Visibility } from "@/types/proto/api/v1/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 
 const QuickCaptureFAB = () => {

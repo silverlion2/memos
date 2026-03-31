@@ -8,10 +8,10 @@ import UpdateAccountDialog from "../UpdateAccountDialog";
 import UserAvatar from "../UserAvatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import AccessTokenSection from "./AccessTokenSection";
+import DataExportSection from "./DataExportSection";
 import SettingGroup from "./SettingGroup";
 import SettingSection from "./SettingSection";
 import WriteApiSection from "./WriteApiSection";
-import DataExportSection from "./DataExportSection";
 
 const MyAccountSection = () => {
   const t = useTranslate();

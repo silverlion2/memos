@@ -1,5 +1,5 @@
 import { create } from "@bufbuild/protobuf";
-import { RefreshCwIcon, SparklesIcon, CheckCircle2Icon, SkipForwardIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { CheckCircle2Icon, ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon, SkipForwardIcon, SparklesIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import MemoView from "@/components/MemoView";
 import { Button } from "@/components/ui/button";
@@ -179,12 +179,7 @@ const DailyReview = () => {
                 </div>
 
                 {/* The memo */}
-                <div
-                  className={cn(
-                    "transition-all duration-300",
-                    reviewedSet.has(currentMemo.name) && "opacity-60 scale-[0.98]",
-                  )}
-                >
+                <div className={cn("transition-all duration-300", reviewedSet.has(currentMemo.name) && "opacity-60 scale-[0.98]")}>
                   <MemoView memo={currentMemo} showVisibility compact />
                 </div>
               </div>
@@ -196,13 +191,7 @@ const DailyReview = () => {
                 <ChevronLeftIcon className="w-4 h-4" />
               </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSkip}
-                disabled={currentIndex >= memos.length - 1}
-                className="gap-2"
-              >
+              <Button variant="outline" size="sm" onClick={handleSkip} disabled={currentIndex >= memos.length - 1} className="gap-2">
                 <SkipForwardIcon className="w-4 h-4" />
                 {t("daily-review.skip")}
               </Button>
@@ -217,13 +206,7 @@ const DailyReview = () => {
                 {t("daily-review.reviewed")}
               </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSkip}
-                disabled={currentIndex >= memos.length - 1}
-                className="gap-2"
-              >
+              <Button variant="outline" size="sm" onClick={handleSkip} disabled={currentIndex >= memos.length - 1} className="gap-2">
                 <ChevronRightIcon className="w-4 h-4" />
               </Button>
             </div>
