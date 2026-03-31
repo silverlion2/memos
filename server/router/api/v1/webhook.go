@@ -9,9 +9,9 @@ import (
 	"github.com/usememos/memos/server/auth"
 )
 
-func (s *APIV1Service) HandleWriteWebhook(c echo.Context) error {
+func (s *APIV1Service) HandleWriteWebhook(c *echo.Context) error {
 	ctx := c.Request().Context()
-	token := c.PathParam("token")
+	token := c.Param("token")
 
 	// Webhook token is actually just a Personal Access Token wrapped in the URL
 	authenticator := auth.NewAuthenticator(s.Store, s.Secret)

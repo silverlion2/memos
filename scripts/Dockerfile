@@ -1,3 +1,19 @@
+# Frontend build stage
+FROM node:24-alpine AS frontend
+
+WORKDIR /frontend-build/web
+# Install pnpm and dependencies
+RUN npm install -g pnpm
+COPY web/package.json web/pnpm-lock.yaml* ./
+RUN pnpm install
+
+# Copy web source
+COPY web/ ./
+
+# Run the release script which builds to ../server/router/frontend/dist
+RUN pnpm release
+
+# Backend build stage
 FROM --platform=$BUILDPLATFORM golang:1.26.1-alpine AS backend
 WORKDIR /backend-build
 
@@ -9,11 +25,12 @@ COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod \
     go mod download
 
-# Copy source code (use .dockerignore to exclude unnecessary files)
+# Copy source code
 COPY . .
 
-# Please build frontend first, so that the static files are available.
-# Refer to `pnpm release` in package.json for the build command.
+# Copy compiled frontend from previous stage
+COPY --from=frontend /frontend-build/server/router/frontend/dist ./server/router/frontend/dist
+
 ARG TARGETOS TARGETARCH VERSION COMMIT
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
