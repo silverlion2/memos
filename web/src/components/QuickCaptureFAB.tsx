@@ -2,19 +2,37 @@ import { create } from "@bufbuild/protobuf";
 import { PenLineIcon, SendIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
+import TagAutocomplete, { extractTagQuery } from "@/components/TagAutocomplete";
 import { memoServiceClient } from "@/connect";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { useFilteredMemoStats } from "@/hooks/useFilteredMemoStats";
 import { cn } from "@/lib/utils";
 import { type Memo, MemoSchema, Visibility } from "@/types/proto/api/v1/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 
-const QuickCaptureFAB = () => {
+interface QuickCaptureFABProps {
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
+}
+
+const QuickCaptureFAB = ({ externalOpen, onExternalOpenChange }: QuickCaptureFABProps = {}) => {
   const t = useTranslate();
   const currentUser = useCurrentUser();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = externalOpen ?? internalOpen;
+  const setIsOpen = useCallback((v: boolean | ((prev: boolean) => boolean)) => {
+    const newVal = typeof v === "function" ? v(isOpen) : v;
+    setInternalOpen(newVal);
+    onExternalOpenChange?.(newVal);
+  }, [isOpen, onExternalOpenChange]);
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [cursorPos, setCursorPos] = useState(0);
+  const [tagAutocompleteActive, setTagAutocompleteActive] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Fetch tags for autocomplete
+  const { tags } = useFilteredMemoStats({ userName: currentUser?.name, context: "home" });
 
   // Global keyboard shortcut: Ctrl+Shift+N
   useEffect(() => {
@@ -40,13 +58,53 @@ const QuickCaptureFAB = () => {
     }
   }, [isOpen]);
 
-  // Auto-resize textarea
+  // Auto-resize textarea + check for tag autocomplete trigger
   const handleTextareaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
+    const value = e.target.value;
+    const pos = e.target.selectionStart ?? 0;
+    setContent(value);
+    setCursorPos(pos);
+
+    // Check if we should show tag autocomplete
+    const tagQuery = extractTagQuery(value, pos);
+    setTagAutocompleteActive(tagQuery !== null);
+
+    // Auto-resize
     const el = e.target;
     el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 300)}px`;
   }, []);
+
+  const handleTextareaSelect = useCallback((e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    const pos = (e.target as HTMLTextAreaElement).selectionStart ?? 0;
+    setCursorPos(pos);
+
+    const value = (e.target as HTMLTextAreaElement).value;
+    const tagQuery = extractTagQuery(value, pos);
+    setTagAutocompleteActive(tagQuery !== null);
+  }, []);
+
+  const handleTagSelect = useCallback(
+    (tag: string, replaceFrom: number, replaceTo: number) => {
+      const before = content.slice(0, replaceFrom);
+      const after = content.slice(replaceTo);
+      const newContent = `${before}#${tag} ${after}`;
+      setContent(newContent);
+      setTagAutocompleteActive(false);
+
+      // Set cursor position after the inserted tag
+      const newPos = replaceFrom + tag.length + 2; // +2 for # and space
+      requestAnimationFrame(() => {
+        if (textareaRef.current) {
+          textareaRef.current.value = newContent;
+          textareaRef.current.setSelectionRange(newPos, newPos);
+          textareaRef.current.focus();
+          setCursorPos(newPos);
+        }
+      });
+    },
+    [content],
+  );
 
   const handleSave = useCallback(async () => {
     if (!content.trim() || !currentUser?.name) return;
@@ -76,15 +134,23 @@ const QuickCaptureFAB = () => {
     }
   }, [content, currentUser?.name]);
 
-  // Ctrl+Enter to save
+  // Ctrl+Enter to save, or delegate to tag autocomplete
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      // Let tag autocomplete handle keys first
+      if (tagAutocompleteActive && textareaRef.current) {
+        const handler = (textareaRef.current as unknown as Record<string, unknown>).__tagAutocompleteKeyDown as
+          | ((e: React.KeyboardEvent) => boolean)
+          | undefined;
+        if (handler?.(e)) return;
+      }
+
       if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         handleSave();
       }
     },
-    [handleSave],
+    [handleSave, tagAutocompleteActive],
   );
 
   if (!currentUser) return null;
@@ -128,20 +194,32 @@ const QuickCaptureFAB = () => {
             </button>
           </div>
 
-          {/* Textarea */}
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={handleTextareaChange}
-            onKeyDown={handleKeyDown}
-            placeholder="What's on your mind? Use #tags to organize..."
-            className={cn(
-              "w-full min-h-[100px] max-h-[300px] resize-none bg-transparent",
-              "text-sm text-foreground placeholder:text-muted-foreground/60",
-              "border-0 outline-none focus:ring-0",
-              "leading-relaxed",
-            )}
-          />
+          {/* Textarea with tag autocomplete */}
+          <div className="relative">
+            <TagAutocomplete
+              tags={tags}
+              text={content}
+              cursorPos={cursorPos}
+              isActive={tagAutocompleteActive}
+              onSelect={handleTagSelect}
+              onDismiss={() => setTagAutocompleteActive(false)}
+              anchorRef={textareaRef}
+            />
+            <textarea
+              ref={textareaRef}
+              value={content}
+              onChange={handleTextareaChange}
+              onSelect={handleTextareaSelect}
+              onKeyDown={handleKeyDown}
+              placeholder="What's on your mind? Type #tag to organize..."
+              className={cn(
+                "w-full min-h-[100px] max-h-[300px] resize-none bg-transparent",
+                "text-sm text-foreground placeholder:text-muted-foreground/60",
+                "border-0 outline-none focus:ring-0",
+                "leading-relaxed",
+              )}
+            />
+          </div>
 
           {/* Footer */}
           <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
@@ -169,7 +247,7 @@ const QuickCaptureFAB = () => {
         </div>
       </div>
 
-      {/* FAB Button */}
+      {/* FAB Button — hidden on mobile when BottomNav is present */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         title={`${t("daily-review.quick-capture")} (Ctrl+Shift+N)`}
@@ -180,6 +258,8 @@ const QuickCaptureFAB = () => {
           "text-white flex items-center justify-center",
           "transition-all duration-300 hover:scale-105 hover:shadow-xl",
           "active:scale-95",
+          // Hide on mobile — BottomNav takes over
+          "hidden md:flex",
           isOpen && "rotate-45 scale-90",
         )}
       >

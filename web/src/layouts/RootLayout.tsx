@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useSearchParams } from "react-router-dom";
 import usePrevious from "react-use/lib/usePrevious";
+import BottomNav from "@/components/BottomNav";
 import Navigation from "@/components/Navigation";
 import QuickCaptureFAB from "@/components/QuickCaptureFAB";
 import { useMemoFilterContext } from "@/contexts/MemoFilterContext";
@@ -20,6 +21,7 @@ const RootLayout = () => {
   const { removeFilter } = useMemoFilterContext();
   const pathname = useMemo(() => location.pathname, [location.pathname]);
   const prevPathname = usePrevious(pathname);
+  const [quickCaptureOpen, setQuickCaptureOpen] = useState(false);
 
   useEffect(() => {
     if (!currentUser) {
@@ -38,6 +40,10 @@ const RootLayout = () => {
     }
   }, [prevPathname, pathname, searchParams, removeFilter]);
 
+  const handleBottomNavCapture = useCallback(() => {
+    setQuickCaptureOpen(true);
+  }, []);
+
   return (
     <div className="w-full min-h-full flex flex-row justify-center items-start sm:pl-16">
       {sm && (
@@ -51,10 +57,11 @@ const RootLayout = () => {
           <Navigation className="py-4 md:pt-6" collapsed={true} />
         </div>
       )}
-      <main className="w-full h-auto grow shrink flex flex-col justify-start items-center">
+      <main className={cn("w-full h-auto grow shrink flex flex-col justify-start items-center", !sm && "pb-20")}>
         <Outlet />
       </main>
-      <QuickCaptureFAB />
+      <QuickCaptureFAB externalOpen={quickCaptureOpen} onExternalOpenChange={setQuickCaptureOpen} />
+      {!sm && <BottomNav onCaptureClick={handleBottomNavCapture} />}
     </div>
   );
 };
