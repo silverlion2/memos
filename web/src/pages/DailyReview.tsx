@@ -103,13 +103,12 @@ const DailyReview = () => {
 
     setIsLoading(true);
     try {
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - 1); // at least 1 day old
-      const cutoffStr = cutoff.toISOString().split("T")[0];
+      // created_ts is in epoch seconds; filter for memos at least 1 day old
+      const oneDayAgoEpoch = Math.floor((Date.now() - 86400000) / 1000);
 
       const response = await memoServiceClient.listMemos(
         create(ListMemosRequestSchema, {
-          filter: `creator == "${currentUser.name}" && display_time < "${cutoffStr}"`,
+          filter: `creator == "${currentUser.name}" && created_ts < ${oneDayAgoEpoch}`,
           pageSize: 200,
         }),
       );
