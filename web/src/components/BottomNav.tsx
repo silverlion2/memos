@@ -102,7 +102,7 @@ const BottomNav = ({ onCaptureClick }: Props) => {
     <nav
       className={cn(
         "fixed bottom-0 left-0 right-0 z-40 md:hidden",
-        "bg-card/95 backdrop-blur-xl border-t border-border/50",
+        "bg-background/80 backdrop-blur-2xl border-t border-border/40",
         "transition-transform duration-300 ease-out",
         "safe-area-bottom",
         isVisible ? "translate-y-0" : "translate-y-full",
@@ -136,23 +136,16 @@ const BottomNav = ({ onCaptureClick }: Props) => {
               end={item.path === Routes.ROOT}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all duration-200",
+                  "flex flex-col items-center justify-center gap-0.5 py-1.5 px-4 rounded-xl transition-all duration-300",
                   "text-[10px] font-medium",
-                  isActive ? "text-primary" : "text-muted-foreground",
+                  isActive ? "text-primary bg-primary/10" : "text-muted-foreground hover:bg-muted/50",
                 )
               }
             >
-              {({ isActive }) => (
-                <>
-                  <div className="relative">
-                    {item.icon}
-                    {isActive && (
-                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-                    )}
-                  </div>
-                  <span>{item.label}</span>
-                </>
-              )}
+              <div className="relative">
+                {item.icon}
+              </div>
+              <span>{item.label}</span>
             </NavLink>
           );
         })}

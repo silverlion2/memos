@@ -132,7 +132,7 @@ const SearchBar = () => {
         <input
           className={cn(
             "w-full text-sidebar-foreground leading-6 bg-sidebar border border-border text-sm rounded-lg p-1 pl-8 pr-16 outline-0",
-            "transition-all focus:border-primary/30 focus:shadow-sm",
+            "transition-all duration-300 focus:border-primary/30 focus:ring-4 focus:ring-primary/10 focus:shadow-sm",
           )}
           placeholder={isSmartMode ? "Search naturally... (use #tags)" : t("memo.search-placeholder")}
           value={queryText}
@@ -161,7 +161,7 @@ const SearchBar = () => {
 
       {/* Search history dropdown */}
       {showHistory && history.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-popover border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+        <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-popover/90 backdrop-blur-xl border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
           <div className="py-1">
             <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground/60 font-medium">Recent searches</div>
             {history.map((query, i) => (

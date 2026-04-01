@@ -2,7 +2,7 @@ import { create } from "@bufbuild/protobuf";
 import { PenLineIcon, SendIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
-import TagAutocomplete, { extractTagQuery } from "@/components/TagAutocomplete";
+import TagAutocomplete, { extractTagQuery, type TagAutocompleteRef } from "@/components/TagAutocomplete";
 import { memoServiceClient } from "@/connect";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useFilteredMemoStats } from "@/hooks/useFilteredMemoStats";
@@ -29,6 +29,7 @@ const QuickCaptureFAB = ({ externalOpen, onExternalOpenChange }: QuickCaptureFAB
   const [isSaving, setIsSaving] = useState(false);
   const [cursorPos, setCursorPos] = useState(0);
   const [tagAutocompleteActive, setTagAutocompleteActive] = useState(false);
+  const tagAutocompleteRef = useRef<TagAutocompleteRef>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Fetch tags for autocomplete
@@ -138,11 +139,10 @@ const QuickCaptureFAB = ({ externalOpen, onExternalOpenChange }: QuickCaptureFAB
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       // Let tag autocomplete handle keys first
-      if (tagAutocompleteActive && textareaRef.current) {
-        const handler = (textareaRef.current as unknown as Record<string, unknown>).__tagAutocompleteKeyDown as
-          | ((e: React.KeyboardEvent) => boolean)
-          | undefined;
-        if (handler?.(e)) return;
+      if (tagAutocompleteActive && tagAutocompleteRef.current) {
+        if (tagAutocompleteRef.current.handleKeyDown(e)) {
+          return;
+        }
       }
 
       if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
@@ -163,7 +163,7 @@ const QuickCaptureFAB = ({ externalOpen, onExternalOpenChange }: QuickCaptureFAB
       {/* Quick Capture Panel */}
       <div
         className={cn(
-          "fixed z-50 transition-all duration-300 ease-out",
+          "fixed z-50 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]",
           // Mobile: bottom sheet style
           "bottom-0 left-0 right-0 md:bottom-24 md:right-6 md:left-auto",
           // Desktop: floating card
@@ -197,13 +197,13 @@ const QuickCaptureFAB = ({ externalOpen, onExternalOpenChange }: QuickCaptureFAB
           {/* Textarea with tag autocomplete */}
           <div className="relative">
             <TagAutocomplete
+              ref={tagAutocompleteRef}
               tags={tags}
               text={content}
               cursorPos={cursorPos}
               isActive={tagAutocompleteActive}
               onSelect={handleTagSelect}
               onDismiss={() => setTagAutocompleteActive(false)}
-              anchorRef={textareaRef}
             />
             <textarea
               ref={textareaRef}
@@ -256,8 +256,8 @@ const QuickCaptureFAB = ({ externalOpen, onExternalOpenChange }: QuickCaptureFAB
           "w-14 h-14 rounded-2xl shadow-lg",
           "bg-gradient-to-br from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600",
           "text-white flex items-center justify-center",
-          "transition-all duration-300 hover:scale-105 hover:shadow-xl",
-          "active:scale-95",
+          "transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-amber-500/20",
+          "active:scale-95 animate-in slide-in-from-bottom-5",
           // Hide on mobile — BottomNav takes over
           "hidden md:flex",
           isOpen && "rotate-45 scale-90",

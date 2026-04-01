@@ -1,5 +1,5 @@
 import { HashIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { cn } from "@/lib/utils";
 
 export interface TagSuggestion {
@@ -20,8 +20,6 @@ interface Props {
   onSelect: (tag: string, replaceFrom: number, replaceTo: number) => void;
   /** Called to dismiss the autocomplete */
   onDismiss: () => void;
-  /** Anchor element for positioning */
-  anchorRef: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 /**
@@ -53,7 +51,11 @@ export function extractTagQuery(text: string, cursorPos: number): { query: strin
   return { query, hashPos };
 }
 
-const TagAutocomplete = ({ tags, text, cursorPos, isActive, onSelect, onDismiss, anchorRef }: Props) => {
+export interface TagAutocompleteRef {
+  handleKeyDown: (e: React.KeyboardEvent) => boolean;
+}
+
+const TagAutocomplete = forwardRef<TagAutocompleteRef, Props>(({ tags, text, cursorPos, isActive, onSelect, onDismiss }, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -131,13 +133,9 @@ const TagAutocomplete = ({ tags, text, cursorPos, isActive, onSelect, onDismiss,
     [tagQuery, suggestions, selectedIndex, handleSelect, onDismiss],
   );
 
-  // Expose handleKeyDown via a stable ref pattern
-  // Parent should call tagAutocompleteRef.current?.handleKeyDown(e)
-  useEffect(() => {
-    if (anchorRef.current) {
-      (anchorRef.current as unknown as Record<string, unknown>).__tagAutocompleteKeyDown = handleKeyDown;
-    }
-  }, [handleKeyDown, anchorRef]);
+  useImperativeHandle(ref, () => ({
+    handleKeyDown,
+  }), [handleKeyDown]);
 
   if (!isActive || !tagQuery || suggestions.length === 0) return null;
 
@@ -172,6 +170,8 @@ const TagAutocomplete = ({ tags, text, cursorPos, isActive, onSelect, onDismiss,
       ))}
     </div>
   );
-};
+});
+
+TagAutocomplete.displayName = "TagAutocomplete";
 
 export default TagAutocomplete;

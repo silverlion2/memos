@@ -3,6 +3,7 @@ import { Outlet, useLocation, useSearchParams } from "react-router-dom";
 import usePrevious from "react-use/lib/usePrevious";
 import BottomNav from "@/components/BottomNav";
 import Navigation from "@/components/Navigation";
+import NetworkStatus from "@/components/NetworkStatus";
 import QuickCaptureFAB from "@/components/QuickCaptureFAB";
 import { useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
@@ -45,7 +46,9 @@ const RootLayout = () => {
   }, []);
 
   return (
-    <div className="w-full min-h-full flex flex-row justify-center items-start sm:pl-16">
+    <>
+      <NetworkStatus />
+      <div className="w-full min-h-full flex flex-row justify-center items-start sm:pl-16">
       {sm && (
         <div
           className={cn(
@@ -62,7 +65,8 @@ const RootLayout = () => {
       </main>
       <QuickCaptureFAB externalOpen={quickCaptureOpen} onExternalOpenChange={setQuickCaptureOpen} />
       {!sm && <BottomNav onCaptureClick={handleBottomNavCapture} />}
-    </div>
+      </div>
+    </>
   );
 };
 

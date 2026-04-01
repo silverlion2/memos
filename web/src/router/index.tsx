@@ -13,9 +13,13 @@ function lazyWithReload<T extends React.ComponentType>(factory: () => Promise<{ 
       const isChunkError =
         error?.message?.includes("Failed to fetch dynamically imported module") ||
         error?.message?.includes("Importing a module script failed");
-      const reloadKey = "chunk-reload";
-      if (isChunkError && !sessionStorage.getItem(reloadKey)) {
-        sessionStorage.setItem(reloadKey, "1");
+      const reloadKey = "chunk-reload-timestamp";
+      const lastReload = parseInt(sessionStorage.getItem(reloadKey) || "0", 10);
+      const now = Date.now();
+      
+      if (isChunkError && now - lastReload > 10000) {
+        // Only attempt reload once every 10 seconds to prevent infinite loops
+        sessionStorage.setItem(reloadKey, now.toString());
         window.location.reload();
       }
       throw error;
