@@ -1,0 +1,23 @@
+# render.yaml – Render Blueprint for PaperSlip
+# Deploy: https://render.com/deploy → connect silverlion2/memos repo
+#
+# Requires env var MEMOS_DSN set to a PostgreSQL connection string.
+# Recommended: Free Neon PostgreSQL → https://neon.tech
+
+services:
+  - type: web
+    name: paperslip
+    runtime: docker
+    dockerfilePath: scripts/Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /healthz
+    envVars:
+      - key: MEMOS_PORT
+        value: "10000"
+      - key: MEMOS_MODE
+        value: prod
+      - key: MEMOS_DRIVER
+        value: postgres
+      - key: MEMOS_DSN
+        sync: false  # must be set manually in Render dashboard
